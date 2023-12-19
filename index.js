@@ -26,10 +26,6 @@ mongoose.connect(process.env.MONGODB_URI).then(() => {
         console.log('Client is ready!');
     });
 
-    client.on('authenticated', session => {
-        console.log(session);
-    });
-
     client.on('message', async msg => { messageHandler(msg) });
 
     client.initialize();
