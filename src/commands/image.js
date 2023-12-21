@@ -10,7 +10,7 @@ export default async function imageCommand(msg) {
         } else if (msg.hasMedia) {
             media = await msg.downloadMedia();
         } else {
-            return console.log('No quoted message or media found.');
+            return msg.reply('Nenhuma mensagem citada ou mídia encontrada.');
         }
 
         await msg.reply(media, msg.from);
