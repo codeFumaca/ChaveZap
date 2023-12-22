@@ -4,6 +4,7 @@ import imageCommand from '../commands/image.js';
 import aramCommand from '../commands/aram.js';
 import playCommand from '../commands/play.js';
 import fbichoCommand from '../commands/fbicho.js';
+import rastreioCommand from '../commands/rastreio.js';
 
 export default async function messageHandler(message, client) {
     if (message.body === '!ping') {
@@ -18,5 +19,7 @@ export default async function messageHandler(message, client) {
         await playCommand(message, client);
     } else if (message.body === 'f!bicho') {
         await fbichoCommand(message);
+    } else if (message.body.startsWith('f!rastreio ')) {
+        await rastreioCommand(message);
     }
 };
