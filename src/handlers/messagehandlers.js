@@ -3,6 +3,7 @@ import stickerCommand from '../commands/sticker.js';
 import imageCommand from '../commands/image.js';
 import aramCommand from '../commands/aram.js';
 import playCommand from '../commands/play.js';
+import fbichoCommand from '../commands/fbicho.js';
 
 export default async function messageHandler(message, client) {
     if (message.body === '!ping') {
@@ -15,5 +16,7 @@ export default async function messageHandler(message, client) {
         await aramCommand(message, client);
     } else if (message.body === 'f!play') {
         await playCommand(message, client);
+    } else if (message.body === 'f!bicho') {
+        await fbichoCommand(message);
     }
 };
