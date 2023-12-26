@@ -17,7 +17,7 @@ export default async function rastreioCommand(msg) {
         }
 
         let text = `*Rastreamento Correios*\n_${info.data.codigo}_
-        \nÚltima atualização: ${info.data.eventos[0].data}\nHorário: ${info.data.eventos[0].hora} (GMT -3)\nStatus: *${info.data.eventos[0].status}*\nLocal: ${info.data.eventos[0].local}\n Fornecedor da API: https://linketrack.com/`;
+        \nÚltima atualização: ${info.data.eventos[0].data}\nHorário: ${info.data.eventos[0].hora} (GMT -3)\nStatus: *${info.data.eventos[0].status}*\nLocal: ${info.data.eventos[0].local}\nFornecedor da API: https://linketrack.com/`;
 
         await msg.reply(text);
 
