@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = "https://api.linketrack.com/track/json?user=teste&token=1abcd00b2731640e886fb41a8a9671ad1434c599dbaa0a0de9a5aa619f29a83f&codigo=";
+const API_URL = process.env.API_URL;
 
 export default async function rastreioCommand(msg) {
     try {
@@ -17,7 +17,7 @@ export default async function rastreioCommand(msg) {
         }
 
         let text = `*Rastreamento Correios*\n_${info.data.codigo}_
-        \nÚltima atualização: ${info.data.eventos[0].data}\nHorário: ${info.data.eventos[0].hora} (GMT -3)\nStatus: *${info.data.eventos[0].status}*\nLocal: ${info.data.eventos[0].local}`;
+        \nÚltima atualização: ${info.data.eventos[0].data}\nHorário: ${info.data.eventos[0].hora} (GMT -3)\nStatus: *${info.data.eventos[0].status}*\nLocal: ${info.data.eventos[0].local}\n Fornecedor da API: https://linketrack.com/`;
 
         await msg.reply(text);
 
