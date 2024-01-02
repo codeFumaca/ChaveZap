@@ -3,7 +3,7 @@ import stickerCommand from '../commands/sticker.js';
 import imageCommand from '../commands/image.js';
 import aramCommand from '../commands/aram.js';
 import playCommand from '../commands/play.js';
-import fbichoCommand from '../commands/fbicho.js';
+import fbichoCommand from '../commands/bicho.js';
 import rastreioCommand from '../commands/rastreio.js';
 
 export default async function messageHandler(message, client) {
