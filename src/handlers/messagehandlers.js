@@ -5,6 +5,7 @@ import aramCommand from '../commands/aram.js';
 import playCommand from '../commands/play.js';
 import fbichoCommand from '../commands/bicho.js';
 import rastreioCommand from '../commands/rastreio.js';
+import instagramCommand from '../commands/instagram.js';
 
 export default async function messageHandler(message, client) {
     if (message.body === '!ping') {
@@ -21,5 +22,7 @@ export default async function messageHandler(message, client) {
         await fbichoCommand(message);
     } else if (message.body.startsWith('f!rastreio ')) {
         await rastreioCommand(message);
+    } else if (message.body.startsWith('f!instagram ')) {
+        await instagramCommand(message);
     }
 };
