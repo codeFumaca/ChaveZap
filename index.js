@@ -21,6 +21,8 @@ client.on('ready', () => {
     console.log('Client is ready!');
 });
 
-client.on('message', async (msg) => { messageHandler(msg, client) });
+client.on('message_create', async (msg) => {
+    messageHandler(msg, client);
+});
 
 client.initialize();
