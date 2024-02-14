@@ -9,6 +9,7 @@ const client = new Client({
     authStrategy: new LocalAuth(),
     puppeteer: {
         executablePath: process.env.CHROME_PATH,
+        args: ['--no-sandbox'],
     }
 });
 
