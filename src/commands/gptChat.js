@@ -11,7 +11,7 @@ export default async function gptCommand(msg) {
 
         const chatGPTResponse = await getGPTResponse(openai, mensagem);
 
-        await client.sendMessage(message.from, chatGPTResponse);
+        await msg.reply(chatGPTResponse);
     } catch (error) {
         await msg.reply(`Ocorreu um erro: _*${error.message}*_`);
         await msg.react('❌');
