@@ -13,7 +13,7 @@ export default async function instagramCommand(msg) {
 
         const media = await MessageMedia.fromUrl(linkDownload);
 
-        await msg.reply(media, msg.from);
+        await msg.reply(media ,msg.from, { media: media, sendMediaAsDocument: true });
 
         await msg.react('👍');
 
