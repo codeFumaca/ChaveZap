@@ -1,5 +1,5 @@
 export default async function log(msg, client) {
-    const groupId = '120363257739768018@g.us';
+    const groupId = process.env.LOGCHANNEL_ID;
     const groupChat = await client.getChatById(groupId);
     let sender = msg._data.from.split('@')[0];
     let text = 
