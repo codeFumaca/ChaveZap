@@ -5,7 +5,7 @@ import fbichoCommand from '../commands/bicho.js';
 import rastreioCommand from '../commands/rastreio.js';
 import instagramCommand from '../commands/instagram.js';
 import gptCommand from '../commands/gptChat.js';
-import pazCommand from '../commands/paz.js';
+import versiculoCommand from '../commands/versiculo.js';
 import log from './log.js';
 import { everyoneCommand , playCommand, aramCommand } from '../commands/mentions.js';
 
@@ -31,8 +31,8 @@ export default async function messageHandler(message, client) {
         await instagramCommand(message);
     } else if (message.body.startsWith('f!gpt ')) {
         await gptCommand(message);
-    } else if (message.body === 'f!paz') {
-        await pazCommand(message)
+    } else if (message.body.startsWith('f!versiculo ' || message.body === 'f!paz')) {
+        await versiculoCommand(message)
     }
 
     // await log(message, client);
