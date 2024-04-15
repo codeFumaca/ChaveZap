@@ -1,5 +1,5 @@
 import qrcode from 'qrcode-terminal';
-import messageHandler from './src/handlers/messagehandlers.js';
+import commandHandler from './src/handlers/commandHandler.js';
 
 import pkg from 'whatsapp-web.js';
 
@@ -24,7 +24,7 @@ client.on('ready', () => {
 });
 
 client.on('message_create', async (msg) => {
-    messageHandler(msg, client);
+    commandHandler(msg, client);
 });
 
 client.initialize();
