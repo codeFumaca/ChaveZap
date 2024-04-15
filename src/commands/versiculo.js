@@ -7,7 +7,7 @@ export default async function versiculoCommand(msg) {
 
         await msg.react('🕣');
 
-        if (!option[1]) paz(msg)
+        if (!option[1]) return paz(msg)
 
         switch (option[1]) {
             case 'anteontem':
@@ -33,8 +33,8 @@ async function versiculo(msg, option) {
     try {
         const versiculo = await getResults(option)
 
-        await msg.reply(versiculo);
         await msg.react('👍');
+        await msg.reply(versiculo);
 
     } catch (error) {
         if (error.response) {

@@ -31,7 +31,7 @@ export default async function messageHandler(message, client) {
         await instagramCommand(message);
     } else if (message.body.startsWith('f!gpt ')) {
         await gptCommand(message);
-    } else if (message.body.startsWith('f!versiculo ' || message.body === 'f!paz')) {
+    } else if (message.body.startsWith('f!versiculo ') || message.body === 'f!paz') {
         await versiculoCommand(message)
     }
 
