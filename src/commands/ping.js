@@ -1,7 +1,5 @@
 export default async function pingCommand(message) {
-    const start = Date.now();
+    const start = Date.parse(Date(message.timestamp));
     const end = Date.now();
-
-    const responseTime = end - start;
-    return await message.reply(`Tempo de resposta: ${responseTime} ms`);
+    return await message.reply(`Tempo de resposta: ${end - start} ms`);
 };
