@@ -7,7 +7,7 @@ export default async function versiculoCommand(msg) {
 
         await msg.react('🕣');
 
-        if (!option[1]) return paz(msg)
+        if (message.body.startsWith('f!paz')) return paz(msg)
 
         switch (option[1]) {
             case 'anteontem':
