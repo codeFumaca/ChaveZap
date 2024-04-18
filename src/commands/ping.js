@@ -1,3 +1,7 @@
 export default async function pingCommand(message) {
-    return await message.reply('Pong!');
+    const start = Date.now();
+    const end = Date.now();
+
+    const responseTime = end - start;
+    return await message.reply(`Tempo de resposta: ${responseTime} ms`);
 };
