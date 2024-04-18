@@ -33,6 +33,7 @@ export default async function commandHandler(message, client) {
     if (commands[command]) {
         await commands[command](message, client);
     } else {
-        console.log(`Comando desconhecido: ${command}`);
+        message.react('❓');
+        message.reply(`Comando desconhecido: ${command}`);
     }
 };
