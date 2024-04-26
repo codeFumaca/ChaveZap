@@ -7,7 +7,7 @@
   "scripts": {
     "start": "tsx index.ts",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "tsc"
+    "build": "tsup index.ts && tsup src/"
   },
   "author": "",
   "license": "ISC",
@@ -20,6 +20,7 @@
     "whatsapp-web.js": "^1.23.0"
   },
   "devDependencies": {
-    "@types/qrcode-terminal": "^0.12.2"
+    "@types/qrcode-terminal": "^0.12.2",
+    "tsup": "^8.0.2"
   }
 }
