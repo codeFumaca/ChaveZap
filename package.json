@@ -1,12 +1,13 @@
 {
   "name": "chavezap",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "Bot pro ZAP",
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "start": "node index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "tsx index.ts",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc"
   },
   "author": "",
   "license": "ISC",
@@ -17,5 +18,8 @@
     "openai": "^4.28.0",
     "qrcode-terminal": "^0.12.0",
     "whatsapp-web.js": "^1.23.0"
+  },
+  "devDependencies": {
+    "@types/qrcode-terminal": "^0.12.2"
   }
 }

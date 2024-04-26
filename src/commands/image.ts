@@ -1,4 +1,6 @@
-export default async function imageCommand(msg) {
+import { Message } from "whatsapp-web.js";
+
+export default async function imageCommand(msg:Message) {
     try {
         await msg.react('🕣');
 

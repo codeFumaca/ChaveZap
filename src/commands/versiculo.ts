@@ -1,7 +1,8 @@
 import * as cheerio from 'cheerio';
 import axios from "axios";
+import { Message } from 'whatsapp-web.js';
 
-export default async function versiculoCommand(msg) {
+export default async function versiculoCommand(msg: Message) {
     try {
         const option = msg.body.split(' ');
 
@@ -11,10 +12,10 @@ export default async function versiculoCommand(msg) {
 
         switch (option[1]) {
             case 'anteontem':
-                versiculo(msg,'_anteontem')
+                versiculo(msg, '_anteontem')
                 break;
             case 'ontem':
-                versiculo(msg,'_ontem')
+                versiculo(msg, '_ontem')
                 break;
             case 'hoje':
                 versiculo(msg, '_hoje')
@@ -29,21 +30,19 @@ export default async function versiculoCommand(msg) {
     }
 }
 
-async function versiculo(msg, option) {
+async function versiculo(msg: Message, option: '_anteontem' | '_ontem' | '_hoje') {
     try {
-        const versiculo = await getResults(option)
+        const versiculo = await getResults(option);
 
         await msg.react('👍');
         await msg.reply(versiculo);
 
     } catch (error) {
-        if (error.response) {
-            await msg.react('❌');
-            return msg.reply('Algo deu errado, tente novamente.');
-        }
+        await msg.react('❌');
+        return msg.reply('Algo deu errado, tente novamente.');
     }
 
-    async function getResults(option) {
+    async function getResults(option: '_anteontem' | '_ontem' | '_hoje') {
         const response = await axios.get(`https://www.bibliaon.com/versiculo_do_dia`);
         if (!response) throw new Error('Algo de errado aconteceu!')
         const $ = cheerio.load(response.data);
@@ -52,7 +51,7 @@ async function versiculo(msg, option) {
     }
 }
 
-async function paz(msg) {
+async function paz(msg: Message) {
     try {
         const data = await getResults()
 
@@ -62,12 +61,10 @@ async function paz(msg) {
         await msg.react('👍');
 
     } catch (error) {
-        if (error.response || error.response.status === 429) {
-            await msg.react('❌');
-            return msg.reply('Algo deu errado, tente novamente.');
-        }
-    }
+        await msg.react('❌');
+        return msg.reply('Algo deu errado, tente novamente.');
 
+    }
 
     async function getResults() {
         const response = await axios.get(`https://www.abibliadigital.com.br/api/verses/nvi/random`);

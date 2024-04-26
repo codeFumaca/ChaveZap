@@ -1,7 +1,10 @@
 import axios from "axios";
-import MessageMedia from "whatsapp-web.js/src/structures/MessageMedia.js";
+import { Message } from "whatsapp-web.js";
 
-export default async function instagramCommand(msg) {
+import whatsappWeb from "whatsapp-web.js";
+const MessageMedia = whatsappWeb.MessageMedia;
+
+export default async function instagramCommand(msg:Message) {
     try {
         const linkInsta = msg.body.split(' ');
 
@@ -13,17 +16,17 @@ export default async function instagramCommand(msg) {
 
         const media = await MessageMedia.fromUrl(linkDownload);
 
-        await msg.reply(media ,msg.from, { media: media, sendMediaAsDocument: true });
+        await msg.reply(media);
 
         await msg.react('👍');
 
-    } catch (error) {
+    } catch (error:any) {
         await msg.reply(`Ocorreu um erro: _*${error.message}*_`);
         await msg.react('❌');
     }
 }
 
-async function getResults(linkInsta) {
+async function getResults(linkInsta:string) {
 
     const options = {
         method: 'GET',
