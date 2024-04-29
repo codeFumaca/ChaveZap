@@ -2,7 +2,7 @@ import axios from "axios";
 import { Message } from "whatsapp-web.js";
 
 import whatsappWeb from "whatsapp-web.js";
-import { MissingParameterError } from "../@types/Error";
+import { MissingParameterError } from "../@types/Error.ts";
 const MessageMedia = whatsappWeb.MessageMedia;
 
 export default async function instagramCommand(msg: Message) {
@@ -32,7 +32,7 @@ export default async function instagramCommand(msg: Message) {
 async function instagramMediaDownloader(msg: Message, url: string, type: string) {
     try {
         if(!url) throw new MissingParameterError();
-        
+
         const linkDownload = await getResults(url, type);
 
         const media = await MessageMedia.fromUrl(linkDownload);
