@@ -2,7 +2,7 @@ import axios from "axios";
 import { Message } from "whatsapp-web.js";
 
 import whatsappWeb from "whatsapp-web.js";
-import { MissingParameterError } from "../@types/Error.ts";
+import { MissingParameterError } from "../../@types/Error.ts";
 const MessageMedia = whatsappWeb.MessageMedia;
 
 export default async function instagramCommand(msg: Message) {

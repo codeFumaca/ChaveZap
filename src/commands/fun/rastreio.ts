@@ -1,6 +1,6 @@
 import axios, { AxiosError } from "axios";
 import { Message } from "whatsapp-web.js";
-import { MissingParameterError, UnsupportedTrackingCodeError } from "../@types/Error.ts";
+import { MissingParameterError, UnsupportedTrackingCodeError } from "../../@types/Error.ts";
 
 const API_URL = process.env.API_URL;
 
