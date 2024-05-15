@@ -11,3 +11,10 @@ export class UnsupportedTrackingCodeError extends Error {
         Object.setPrototypeOf(this, UnsupportedTrackingCodeError.prototype);
     }
 }
+
+export class InsufficientPermissionError extends Error {
+    constructor() {
+        super('Você não tem permissão para fazer isso!');
+        Object.setPrototypeOf(this, InsufficientPermissionError.prototype);
+    }
+}
