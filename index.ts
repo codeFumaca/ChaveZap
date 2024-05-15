@@ -4,6 +4,7 @@ import commandHandler from './src/handlers/commandHandler.js';
 import { Client, Message } from 'whatsapp-web.js';
 
 import whatsappWeb from "whatsapp-web.js";
+import { connectar } from './src/database/db.ts';
 const LocalAuth = whatsappWeb.LocalAuth;
 
 
@@ -23,8 +24,13 @@ client.on('ready', () => {
     console.log('Client is ready!');
 });
 
-client.on('message_create', async (msg:Message) => {
+client.on('message_create', async (msg: Message) => {
     commandHandler(msg, client);
 });
 
-client.initialize();
+try {
+    await connectar();
+    client.initialize();
+} catch (error) {
+    console.log(error);
+}
