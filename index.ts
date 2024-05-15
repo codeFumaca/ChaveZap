@@ -29,7 +29,9 @@ client.on('message_create', async (msg: Message) => {
 });
 
 try {
-    await connectar();
+    (async () => {
+        await connectar();
+    })();
     client.initialize();
 } catch (error) {
     console.log(error);
