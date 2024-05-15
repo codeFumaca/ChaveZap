@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 
 export const connectar = async () => {
     console.log("Conectando ao MongoDB...");
-    const URI = "mongodb+srv://admin:admin@cluster0.gn4ct4f.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
+    const URI = process.env.MONGODB_URI;
 
     if (!URI) throw new Error("A URI do MongoDB não foi fornecida.");
 
