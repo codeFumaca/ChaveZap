@@ -4,54 +4,42 @@ import { RecievedMessage } from "../../@types/RecievedMessages.ts";
 import { role, schedule } from "../../@types/types.ts";
 import { InsufficientPermissionError } from "../../@types/Error.ts";
 
+const COMMANDS: any = {
+    'criar': createSchedule,
+    'listar': showSchedule,
+    'registrar': registerInSchedule,
+    'desregistrar': unregisterInSchedule,
+    'deletar': deleteSchedule
+};
+
 export default async function scheduleCommand(msg: Message) {
     try {
         await msg.react('🕣');
 
         const option = msg.body.split(' ')[1];
+        const command = COMMANDS[option];
 
-        switch (option) {
-            case 'criar':
-                msg.body = msg.body.replace('f!escala criar ', '')
-                await createSchedule(msg);
-                break;
-            case 'listar':
-                await showSchedule(msg);
-                break;
-            case 'registrar':
-                msg.body = msg.body.replace('f!escala registrar ', '')
-                await registerInSchedule(msg);
-                break;
-            case 'desregistrar':
-                await unregisterInSchedule(msg);
-                break;
-            case 'deletar':
-                await deleteSchedule(msg);
-                break;
-            default:
-                await msg.react('❓');
-                return await msg.reply('Nenhuma opção encontrada.\nEscolha uma opção: <criar | listar | registrar | desregistrar | deletar>')
+        if (command) {
+            await command(msg);
+        } else {
+            await msg.react('❓');
+            return await msg.reply('Nenhuma opção encontrada.\nEscolha uma opção: <criar | listar | registrar | desregistrar | deletar>')
         }
     } catch (error) {
-        if (error instanceof InsufficientPermissionError) {
-            await msg.react('❌');
-            return msg.reply(error.message);
-        }
-        await msg.react('❌');
-        return msg.reply('Algo deu errado, tente novamente.');
+        if (error instanceof Error) handleError(error, msg);
     }
 }
 
 async function createSchedule(msg: Message) {
+    msg.body = msg.body.replace('f!escala criar ', '')
+
     const tasksString = msg.body.trim();
 
-    const now = new Date();
-    const week = getWeek(now);
-    const year = now.getFullYear();
+    const [week, year] = getWeekAndYear();
 
     const existingSchedule = await Schedule.findOne({ week, year });
     if (existingSchedule) return await msg.reply('Já existe uma escala para esta semana.\nUse ```f!escala listar``` para visualizar.');
-    
+
     const scheduleParts = tasksString.split('//');
 
     let tasks: role[] = [];
@@ -79,34 +67,40 @@ async function createSchedule(msg: Message) {
 }
 
 async function showSchedule(msg: Message) {
-    try {
-        const now = new Date();
-        const week = getWeek(now);
-        const year = now.getFullYear();
+    const [week, year] = getWeekAndYear();
 
-        const existingSchedule = await Schedule.findOne({ week, year });
-        if (!existingSchedule) return await msg.reply('Não há nenhuma escala aberta para esta semana.\nUse ```f!escala criar``` para criar uma nova esacala.');
+    const emojiTexts: any = {
+        'live': '💻 live',
+        'som': '🔊 som',
+        'fotos': '📸 fotos',
+        'storymaker': '📱 storymaker',
+        'videomaker': '🎥 videomaker',
+        'avisos': '📢 avisos',
+    };
 
-        const schedule: role[] = existingSchedule.tasks as unknown as role[];
-        let message = `Escala da Semana ${week} de ${year}\n`;
+    const existingSchedule = await Schedule.findOne({ week, year });
+    if (!existingSchedule) return await msg.reply('Não há nenhuma escala aberta para esta semana.\nUse ```f!escala criar``` para criar uma nova esacala.');
 
-        for (const scheduleItem of schedule) {
-            message += `\n*${scheduleItem.nome}* - ${scheduleItem.resp || '_Vago_'} - ${scheduleItem.numero || '_Vago_'}`;
+    const schedule: role[] = existingSchedule.tasks as unknown as role[];
+    let message = `Escala da Semana ${week} de ${year}\n`;
+
+    for (const scheduleItem of schedule) {
+        if (scheduleItem.nome) {
+            const [taskName, taskNumber] = scheduleItem.nome.split(' ');
+            let emojiName;
+            emojiName = emojiTexts[taskName] ?? scheduleItem.nome;
+            message += `\n*${emojiName} ${taskNumber}* - ${scheduleItem.resp || '_Vago_'} - ${scheduleItem.numero || '_Vago_'}`
         }
-
-        await msg.reply(message);
-        return await msg.react('👍');
-
-    } catch (error) {
-        await msg.react('❌');
-        return msg.reply('Algo deu errado, tente novamente.');
     }
+
+    await msg.reply(message);
+    return await msg.react('👍');
 }
 
 async function registerInSchedule(msg: Message) {
-    const now = new Date();
-    const week = getWeek(now);
-    const year = now.getFullYear();
+    msg.body = msg.body.replace('f!escala registrar ', '')
+
+    const [week, year] = getWeekAndYear();
 
     const respNumber: string = msg.from.replace('@c.us', '');
 
@@ -118,6 +112,7 @@ async function registerInSchedule(msg: Message) {
     if (existingSchedule.registered.includes(respNumber)) return await msg.reply('Você já está registrado na escala.');
 
     const tasksNames = existingSchedule.tasks.map((item) => item.nome);
+    console.log(tasksNames);
 
     const recievedMessage = msg as unknown as RecievedMessage;
 
@@ -137,9 +132,7 @@ async function registerInSchedule(msg: Message) {
 }
 
 async function unregisterInSchedule(msg: Message) {
-    const now = new Date();
-    const week = getWeek(now);
-    const year = now.getFullYear();
+    const [week, year] = getWeekAndYear();
 
     const respNumber: string = msg.from.replace('@c.us', '');
 
@@ -167,9 +160,7 @@ async function deleteSchedule(msg: Message) {
 
     if (secretMSG !== secret) throw new InsufficientPermissionError();
 
-    const now = new Date();
-    const week = getWeek(now);
-    const year = now.getFullYear();
+    const [week, year] = getWeekAndYear();
 
     await Schedule.deleteOne({ week, year });
 
@@ -177,8 +168,25 @@ async function deleteSchedule(msg: Message) {
     return await msg.react('👍');
 }
 
+async function handleError(error: Error, msg: Message) {
+    if (error instanceof InsufficientPermissionError) {
+        await msg.react('❌');
+        return msg.reply(error.message);
+    }
+    if (error instanceof Error) msg.reply(error.message);
+    await msg.react('❌');
+    return msg.reply('Algo deu errado, tente novamente.');
+}
+
 function getWeek(date: Date) {
     const firstDayOfYear = new Date(date.getFullYear(), 0, 1);
     const pastDaysOfYear = (date.getTime() - firstDayOfYear.getTime()) / 86400000;
     return Math.ceil((pastDaysOfYear + firstDayOfYear.getDay() + 1) / 7);
+}
+
+function getWeekAndYear() {
+    const now = new Date();
+    const week = getWeek(now);
+    const year = now.getFullYear();
+    return [week, year];
 }
