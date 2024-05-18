@@ -31,3 +31,21 @@ export function logError(error: Error, client: Client) {
         chat.sendMessage(text);
     });
 }
+
+export async function deleteLogMessage(msgAnterior: Message, msg: Message, client: Client) {
+    try {
+        const groupId = process.env.LOGCHANNEL_ID;
+
+        if (!groupId) return;
+
+        const groupChat = await client.getChatById(groupId);
+
+        const lastMessage = msgAnterior as unknown as RecievedMessage;
+
+        const text = `❌ *Mensagem apagada!*\nRemetente: ${lastMessage._data.notifyName}\nConteúdo: ${msg.body}`;
+
+        await groupChat.sendMessage(text);
+    } catch (error) {
+        if (error instanceof Error) logError(error, client);
+    }
+}
