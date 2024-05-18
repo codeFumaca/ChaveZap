@@ -1,4 +1,4 @@
-import { Message } from "whatsapp-web.js";
+import { Client, Message } from "whatsapp-web.js";
 import Schedule from "../../models/schedule.model.ts";
 import { RecievedMessage } from "../../@types/RecievedMessages.ts";
 import { role, schedule } from "../../@types/types.ts";
@@ -12,7 +12,7 @@ const COMMANDS: any = {
     'deletar': deleteSchedule
 };
 
-export default async function scheduleCommand(msg: Message) {
+export default async function scheduleCommand(msg: Message, client: Client) {
     try {
         await msg.react('🕣');
 
@@ -20,7 +20,7 @@ export default async function scheduleCommand(msg: Message) {
         const command = COMMANDS[option];
 
         if (command) {
-            await command(msg);
+            await command(msg, client);
         } else {
             await msg.react('❓');
             return await msg.reply('Nenhuma opção encontrada.\nEscolha uma opção: <criar | listar | registrar | desregistrar | deletar>')
@@ -97,30 +97,37 @@ async function showSchedule(msg: Message) {
     return await msg.react('👍');
 }
 
-async function registerInSchedule(msg: Message) {
+async function registerInSchedule(msg: Message, client: Client) {
     msg.body = msg.body.replace('f!escala registrar ', '')
 
     const [week, year] = getWeekAndYear();
 
-    const respNumber: string = msg.from.replace('@c.us', '');
+    let respNumber: string = msg.from.replace('@c.us', '');
 
-    const existingSchedule: schedule | null = await Schedule.findOne({ week, year });
-    if (!existingSchedule) return await msg.reply('Não há nenhuma escala aberta para esta semana.\nUse ```f!escala criar``` para criar uma nova esacala.');
+    if (msg.author) respNumber = msg.author.replace('@c.us', '');
 
     const task = msg.body;
 
+    const existingSchedule: schedule | null = await Schedule.findOne({ week, year });
+
+    // Validações
+    if (!existingSchedule) return await msg.reply('Não há nenhuma escala aberta para esta semana.\nUse ```f!escala criar``` ou aguarde uma nova escala.');
+
+    const tasksNames = existingSchedule.tasks.map((item) => item.nome); 
+    if (tasksNames.includes(task) === false) return await msg.reply('Essa função não existe na escala.');
+
     if (existingSchedule.registered.includes(respNumber)) return await msg.reply('Você já está registrado na escala.');
 
-    const tasksNames = existingSchedule.tasks.map((item) => item.nome);
-    console.log(tasksNames);
+    if (existingSchedule.tasks.filter((item) => item.nome === task)[0].resp) return await msg.reply('Essa função já está preenchida.');
 
+    // Registro
     const recievedMessage = msg as unknown as RecievedMessage;
 
     existingSchedule.tasks.map((item) => {
-        if (item.nome === task && !item.resp) {
+        if (item.nome === task) {
             item.resp = recievedMessage._data.notifyName;
-            item.numero = recievedMessage.from.replace('@c.us', '');
-            existingSchedule.registered.push(recievedMessage.from.replace('@c.us', ''));
+            item.numero = respNumber;
+            existingSchedule.registered.push(respNumber);
         }
     });
 
@@ -128,13 +135,14 @@ async function registerInSchedule(msg: Message) {
 
     await msg.reply('Registrado com sucesso!');
     return await msg.react('👍');
-
 }
 
 async function unregisterInSchedule(msg: Message) {
     const [week, year] = getWeekAndYear();
 
-    const respNumber: string = msg.from.replace('@c.us', '');
+    let respNumber: string = msg.from.replace('@c.us', '');
+
+    if (msg.author) respNumber = msg.author.replace('@c.us', '');
 
     const existingSchedule: schedule | null = await Schedule.findOne({ week, year });
     if (!existingSchedule) return await msg.reply('Não há nenhuma escala aberta para esta semana.\nUse ```f!escala criar``` para criar uma nova esacala.');
@@ -150,7 +158,7 @@ async function unregisterInSchedule(msg: Message) {
 
     await Schedule.updateOne({ week, year }, { tasks: existingSchedule.tasks, registered: existingSchedule.registered });
 
-    await msg.reply('Desegistrado com sucesso!');
+    await msg.reply('Desregistrado com sucesso!');
     return await msg.react('👍');
 }
 
