@@ -10,7 +10,9 @@ const COMMANDS: any = {
     'registrar': registerInSchedule, // Se registrar na escala
     'desregistrar': unregisterInSchedule, // Se desregistrar na escala
     'deletar': deleteSchedule, // Deletar uma escala
-    'cadastrar': setTasksInSchedule // Cadastrar funções na escala
+    'cadastrar': setTasksInSchedule, // Cadastrar funções na escala
+    'estado': modifyStateSchedule, // 
+
 };
 
 const prefix = process.env.PREFIX;
@@ -26,7 +28,7 @@ export default async function scheduleCommand(msg: Message, client: Client) {
             await command(msg, client);
         } else {
             await msg.react('❓');
-            return await msg.reply('Nenhuma opção encontrada.\nEscolha uma opção: <criar | listar | registrar | desregistrar | deletar>')
+            return await msg.reply('Nenhuma opção encontrada.\nEscolha uma opção: <criar | cadastrar | listar | registrar | desregistrar | estado | deletar>')
         }
     } catch (error) {
         if (error instanceof Error) handleError(error, msg);
@@ -34,7 +36,7 @@ export default async function scheduleCommand(msg: Message, client: Client) {
 }
 
 async function createSchedule(msg: Message) {
-    const id = msg.body.replace('escala criar', '');
+    const id = msg.body.replace('escala criar ', '');
 
     if (!id || !(id.length > 0)) throw new MissingParameterError();
 
@@ -134,32 +136,24 @@ async function showSchedule(msg: Message) {
 }
 
 async function registerInSchedule(msg: Message) {
-    msg.body = msg.body.replace('escala registrar', '')
+    msg.body = msg.body.replace('escala registrar ', '')
+
+    const id = msg.body.split(' ')[0];
+    msg.body = msg.body.replace(id + ' ', '');
 
     let respNumber: string = msg.from.replace('@c.us', '');
+
     if (msg.author) respNumber = msg.author.replace('@c.us', '');
 
-    console.log(msg.body)
-    const id = msg.body.split(' ')[1];
-    const task = msg.body.split(' ')[2];
-    if (!task || !id) throw new MissingParameterError();
-
+    const task = msg.body;
     const existingSchedule: schedule | null = await Schedule.findOne({ id });
 
     // Validações
-    if (!existingSchedule) return await msg.reply(`Não há nenhuma escala aberta com este ID.\nUse _${prefix}escala criar_ ou aguarde uma nova escala.`);
-    if (!existingSchedule.isOpen) return await msg.reply('A escala está fechada para registros.');
+    if (!existingSchedule) return await msg.reply(`Não há nenhuma escala com o _ID_ informado.\nUse _${prefix}escala criar_ ou aguarde uma nova escala.`);
 
     const tasksNames = existingSchedule.tasks.map((item) => item.nome);
 
-    console.log(tasksNames.some((item) => item == task));
-    console.log(task, typeof task)
-    console.log(tasksNames, typeof tasksNames)
-    console.log(tasksNames.includes(task))
-    console.log(tasksNames[0], typeof tasksNames[0])
-    console.log(tasksNames.indexOf(task))
-
-
+    if (!tasksNames) return await msg.reply('Não há nenhuma função cadastrada na escala.');
 
     if (!tasksNames.includes(task)) return await msg.reply('Função não encontrada na escala.');
 
@@ -185,6 +179,10 @@ async function registerInSchedule(msg: Message) {
 }
 
 async function unregisterInSchedule(msg: Message) {
+
+    const id = msg.body.replace('escala desregistrar ', '');
+
+    if (!id) throw new MissingParameterError();
 
     let respNumber: string = msg.from.replace('@c.us', '');
 
@@ -216,7 +214,7 @@ async function deleteSchedule(msg: Message) {
     const secretMSG = msg.body.split(' ')[2];
 
     if (!id || !secretMSG || !secret) throw new MissingParameterError();
-    // if (secretMSG != secret) throw new InsufficientPermissionError();
+    if (secretMSG != secret) throw new InsufficientPermissionError();
 
     await Schedule.deleteOne({ id }).then(async () => await msg.reply('Escala deletada com sucesso!'));
 
@@ -243,5 +241,32 @@ async function showAllSchedules(msg: Message) {
     const schedulesIds = schedules.map((item) => item.id);
 
     await msg.reply(`Escalas abertas: ${schedulesIds}`);
+    return await msg.react('👍');
+}
+
+async function modifyStateSchedule(msg: Message) {
+    const secret = process.env.SCHEDULE_SECRET;
+
+    msg.body = msg.body.replace('escala estado', '');
+    const id = msg.body.split(' ')[1];
+    const secretMSG = msg.body.split(' ')[2];
+
+    if (!id || !secretMSG || !secret) throw new MissingParameterError();
+    if (secretMSG != secret) throw new InsufficientPermissionError();
+
+    const existingSchedule = await Schedule.findOne({ id });
+
+    if (!existingSchedule) return await msg.reply('Escala não encontrada.');
+
+    if (existingSchedule.isOpen) {
+        existingSchedule.isOpen = false;
+        await msg.reply('Escala fechada com sucesso.');
+    } else {
+        existingSchedule.isOpen = true;
+        await msg.reply('Escala aberta com sucesso.');
+    }
+
+    await existingSchedule.save();
+
     return await msg.react('👍');
 }
