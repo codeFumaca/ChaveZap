@@ -4,30 +4,22 @@ import imageCommand from '../commands/fun/image.ts';
 import bichoCommand from '../commands/fun/bicho.ts';
 import rastreioCommand from '../commands/fun/rastreio.ts';
 import mediaCommand from '../commands/fun/media.ts';
-import gptCommand from '../commands/fun/gptChat.ts';
 import versiculoCommand from '../commands/fun/versiculo.ts';
 import log, { logError } from './log.ts';
-import { everyoneCommand, playCommand, aramCommand } from '../commands/fun/mentions.ts';
 import { Client, Message } from 'whatsapp-web.js';
 import withLogging from './log.ts';
-import scheduleCommand from '../commands/utility/schedule.ts';
 
 const prefix = process.env.PREFIX;
 
 const commands: any = {
-    'gpt': gptCommand,
     'i': imageCommand,
     'ping': pingCommand,
     's': stickerCommand,
-    'aram': aramCommand,
-    'play': playCommand,
     'bicho': bichoCommand,
     'paz': versiculoCommand,
-    'everyone': everyoneCommand,
     'rastreio': rastreioCommand,
     'media': mediaCommand,
     'versiculo': versiculoCommand,
-    'escala': scheduleCommand,
 };
 
 export default async function commandHandler(message: Message, client: Client) {
