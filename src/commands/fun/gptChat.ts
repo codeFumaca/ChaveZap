@@ -3,10 +3,11 @@ import { Message } from "whatsapp-web.js";
 
 export default async function gptCommand(msg: Message) {
 
+    const prefix = process.env.PREFIX;
     try {
         const openai = new OpenAI({ apiKey: process.env.OPENAI_KEY });
 
-        const mensagem = msg.body.replace('f!gpt ', '');
+        const mensagem = msg.body.replace(`gpt `, '');
 
         await msg.react('🕣');
 
@@ -17,7 +18,7 @@ export default async function gptCommand(msg: Message) {
         await msg.reply(chatGPTResponse);
         await msg.react('👍');
     } catch (error: any) {
-        await msg.reply(`Ocorreu um erro: _*${error.message}*_`);
+        await msg.reply(`❌ Ocorreu um erro ao executar o comando.`);
         await msg.react('❌');
     }
 }

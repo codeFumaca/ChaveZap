@@ -3,6 +3,8 @@ import axios from "axios";
 import { Message } from 'whatsapp-web.js';
 
 export default async function versiculoCommand(msg: Message) {
+
+    const prefix = process.env.PREFIX;
     try {
         const option = msg.body.split(' ');
 
@@ -22,7 +24,7 @@ export default async function versiculoCommand(msg: Message) {
                 break;
             default:
                 await msg.react('❌');
-                return await msg.reply('Nenhuma opção encontrada.\nEscolha uma opção: <anteontem | ontem | hoje>\nExemplo: ```f!versiculo hoje```');
+                return await msg.reply(`Nenhuma opção encontrada.\nEscolha uma opção: <anteontem | ontem | hoje>\nExemplo: _${prefix}versiculo hoje_`);
         }
     } catch (error) {
         await msg.react('❌');

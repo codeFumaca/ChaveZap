@@ -2,15 +2,18 @@ import { Client, Message } from "whatsapp-web.js";
 import Schedule from "../../models/schedule.model.ts";
 import { RecievedMessage } from "../../@types/RecievedMessages.ts";
 import { role, schedule } from "../../@types/types.ts";
-import { InsufficientPermissionError } from "../../@types/Error.ts";
+import { InsufficientPermissionError, MissingParameterError } from "../../@types/Error.ts";
 
 const COMMANDS: any = {
-    'criar': createSchedule,
-    'listar': showSchedule,
-    'registrar': registerInSchedule,
-    'desregistrar': unregisterInSchedule,
-    'deletar': deleteSchedule
+    'criar': createSchedule, // Criar uma nova escala
+    'listar': showSchedule, // Listar funções na escala
+    'registrar': registerInSchedule, // Se registrar na escala
+    'desregistrar': unregisterInSchedule, // Se desregistrar na escala
+    'deletar': deleteSchedule, // Deletar uma escala
+    'cadastrar': setTasksInSchedule // Cadastrar funções na escala
 };
+
+const prefix = process.env.PREFIX;
 
 export default async function scheduleCommand(msg: Message, client: Client) {
     try {
@@ -31,43 +34,74 @@ export default async function scheduleCommand(msg: Message, client: Client) {
 }
 
 async function createSchedule(msg: Message) {
-    msg.body = msg.body.replace('f!escala criar ', '')
+    const id = msg.body.replace('escala criar', '');
 
-    const tasksString = msg.body.trim();
+    if (!id || !(id.length > 0)) throw new MissingParameterError();
 
-    const [week, year] = getWeekAndYear();
+    const existingSchedule = await Schedule.findOne({ id });
+    if (existingSchedule) return await msg.reply(`Já existe uma escala com este identificador.\nUse _${prefix}escala listar ${id}_ para visualizar.`);
 
-    const existingSchedule = await Schedule.findOne({ week, year });
-    if (existingSchedule) return await msg.reply('Já existe uma escala para esta semana.\nUse ```f!escala listar``` para visualizar.');
+    const tasks: role[] = [];
 
-    const scheduleParts = tasksString.split('//');
+    const schedule = new Schedule({ id, tasks, registered: [] });
 
-    let tasks: role[] = [];
+    schedule.save().then(async () => await msg.reply('Escala criada com sucesso!'));
 
-    for (const part of scheduleParts) {
-        const [task, quantity] = part.split(':');
-
-        for (let i = 1; i <= parseInt(quantity); i++) {
-            const obj: role = {
-                nome: `${task} ${i}`,
-                resp: null,
-                numero: null
-            }
-            tasks.push(obj);
-        }
-    }
-
-    const schedule = new Schedule({ week, year, tasks });
-
-    await schedule.save();
-
-    await msg.reply('Escala criada com sucesso!');
     return await msg.react('👍');
 
 }
 
+async function setTasksInSchedule(msg: Message) {
+    msg.body = msg.body.replace('escala cadastrar', '')
+    const id = msg.body.split(' ')[1];
+
+    const schedule = await Schedule.findOne({ id, isOpen: true, tasks: [] });
+    if (!schedule) {
+        await msg.react('❌');
+        return await msg.reply(`Não há nenhuma escala que atenda aos requisitos.\nUse _${prefix}escala criar_ para criar uma nova escala.`);
+    }
+
+    const tasksString = msg.body.split(' ')[2].toLowerCase();
+    if (!tasksString) return await msg.reply('Formato de tarefa inválido.');
+
+    const scheduleParts = tasksString.split('//');
+    let tasks: role[] = [];
+
+    for (const part of scheduleParts) {
+        const [task, quantityStr] = part.split(':');
+        const quantity = parseInt(quantityStr);
+
+        if (isNaN(quantity) || quantity <= 0) {
+            await msg.react('❌');
+            return await msg.reply(`Quantidade inválida para a tarefa: _${task}_.`);
+        }
+
+        for (let i = 1; i <= quantity; i++) {
+            const obj: role = {
+                nome: `${task} ${i}`,
+                resp: null,
+                numero: null
+            };
+            tasks.push(obj);
+        }
+    }
+
+    schedule.tasks.push(...tasks);
+
+    try {
+        await schedule.save();
+        await msg.react('👍');
+        return await msg.reply('Tarefas cadastradas com sucesso!');
+    } catch (error) {
+        console.error('Erro ao salvar a escala:', error);
+        return await msg.reply('Erro ao atualizar a escala.');
+    }
+}
+
 async function showSchedule(msg: Message) {
-    const [week, year] = getWeekAndYear();
+    const id = msg.body.replace('escala listar', '').trim();
+
+    if (!id) return await showAllSchedules(msg);
 
     const emojiTexts: any = {
         'live': '💻 live',
@@ -78,11 +112,13 @@ async function showSchedule(msg: Message) {
         'avisos': '📢 avisos',
     };
 
-    const existingSchedule = await Schedule.findOne({ week, year });
-    if (!existingSchedule) return await msg.reply('Não há nenhuma escala aberta para esta semana.\nUse ```f!escala criar``` para criar uma nova esacala.');
+    const existingSchedule = await Schedule.findOne({ id });
+    if (!existingSchedule) return await msg.reply(`Não há nenhuma escala aberta com este id.\nUse _${prefix}escala criar_ para criar uma nova escala.`);
 
     const schedule: role[] = existingSchedule.tasks as unknown as role[];
-    let message = `Escala da Semana ${week} de ${year}\n`;
+    let message = `*📃 Escala* _${id}_\n`;
+
+    if (existingSchedule.tasks.length === 0) message += '\nNenhuma função cadastrada.';
 
     for (const scheduleItem of schedule) {
         if (scheduleItem.nome) {
@@ -97,24 +133,35 @@ async function showSchedule(msg: Message) {
     return await msg.react('👍');
 }
 
-async function registerInSchedule(msg: Message, client: Client) {
-    msg.body = msg.body.replace('f!escala registrar ', '')
-
-    const [week, year] = getWeekAndYear();
+async function registerInSchedule(msg: Message) {
+    msg.body = msg.body.replace('escala registrar', '')
 
     let respNumber: string = msg.from.replace('@c.us', '');
-
     if (msg.author) respNumber = msg.author.replace('@c.us', '');
 
-    const task = msg.body;
+    console.log(msg.body)
+    const id = msg.body.split(' ')[1];
+    const task = msg.body.split(' ')[2];
+    if (!task || !id) throw new MissingParameterError();
 
-    const existingSchedule: schedule | null = await Schedule.findOne({ week, year });
+    const existingSchedule: schedule | null = await Schedule.findOne({ id });
 
     // Validações
-    if (!existingSchedule) return await msg.reply('Não há nenhuma escala aberta para esta semana.\nUse ```f!escala criar``` ou aguarde uma nova escala.');
+    if (!existingSchedule) return await msg.reply(`Não há nenhuma escala aberta com este ID.\nUse _${prefix}escala criar_ ou aguarde uma nova escala.`);
+    if (!existingSchedule.isOpen) return await msg.reply('A escala está fechada para registros.');
 
-    const tasksNames = existingSchedule.tasks.map((item) => item.nome); 
-    if (tasksNames.includes(task) === false) return await msg.reply('Essa função não existe na escala.');
+    const tasksNames = existingSchedule.tasks.map((item) => item.nome);
+
+    console.log(tasksNames.some((item) => item == task));
+    console.log(task, typeof task)
+    console.log(tasksNames, typeof tasksNames)
+    console.log(tasksNames.includes(task))
+    console.log(tasksNames[0], typeof tasksNames[0])
+    console.log(tasksNames.indexOf(task))
+
+
+
+    if (!tasksNames.includes(task)) return await msg.reply('Função não encontrada na escala.');
 
     if (existingSchedule.registered.includes(respNumber)) return await msg.reply('Você já está registrado na escala.');
 
@@ -131,21 +178,20 @@ async function registerInSchedule(msg: Message, client: Client) {
         }
     });
 
-    await Schedule.updateOne({ week, year }, { tasks: existingSchedule.tasks, registered: existingSchedule.registered });
+    await Schedule.updateOne({ id }, { tasks: existingSchedule.tasks, registered: existingSchedule.registered });
 
     await msg.reply('Registrado com sucesso!');
     return await msg.react('👍');
 }
 
 async function unregisterInSchedule(msg: Message) {
-    const [week, year] = getWeekAndYear();
 
     let respNumber: string = msg.from.replace('@c.us', '');
 
     if (msg.author) respNumber = msg.author.replace('@c.us', '');
 
-    const existingSchedule: schedule | null = await Schedule.findOne({ week, year });
-    if (!existingSchedule) return await msg.reply('Não há nenhuma escala aberta para esta semana.\nUse ```f!escala criar``` para criar uma nova esacala.');
+    const existingSchedule: schedule | null = await Schedule.findOne({ id });
+    if (!existingSchedule) return await msg.reply(`Não há nenhuma escala aberta para esta semana.\nUse _${prefix}escala criar_ para criar uma nova escala.`);
     if (!existingSchedule.registered.includes(respNumber)) return await msg.reply('Você não está registrado na escala.');
 
     existingSchedule.tasks.map((item) => {
@@ -156,7 +202,7 @@ async function unregisterInSchedule(msg: Message) {
         }
     });
 
-    await Schedule.updateOne({ week, year }, { tasks: existingSchedule.tasks, registered: existingSchedule.registered });
+    await Schedule.updateOne({ id }, { tasks: existingSchedule.tasks, registered: existingSchedule.registered });
 
     await msg.reply('Desregistrado com sucesso!');
     return await msg.react('👍');
@@ -164,20 +210,21 @@ async function unregisterInSchedule(msg: Message) {
 
 async function deleteSchedule(msg: Message) {
     const secret = process.env.SCHEDULE_SECRET;
-    const secretMSG = msg.body.replace('f!escala deletar ', '');
 
-    if (secretMSG !== secret) throw new InsufficientPermissionError();
+    msg.body = msg.body.replace('escala deletar', '');
+    const id = msg.body.split(' ')[1];
+    const secretMSG = msg.body.split(' ')[2];
 
-    const [week, year] = getWeekAndYear();
+    if (!id || !secretMSG || !secret) throw new MissingParameterError();
+    // if (secretMSG != secret) throw new InsufficientPermissionError();
 
-    await Schedule.deleteOne({ week, year });
+    await Schedule.deleteOne({ id }).then(async () => await msg.reply('Escala deletada com sucesso!'));
 
-    await msg.reply('Escala deletada com sucesso!');
     return await msg.react('👍');
 }
 
 async function handleError(error: Error, msg: Message) {
-    if (error instanceof InsufficientPermissionError) {
+    if (error instanceof InsufficientPermissionError || error instanceof MissingParameterError) {
         await msg.react('❌');
         return msg.reply(error.message);
     }
@@ -186,15 +233,15 @@ async function handleError(error: Error, msg: Message) {
     return msg.reply('Algo deu errado, tente novamente.');
 }
 
-function getWeek(date: Date) {
-    const firstDayOfYear = new Date(date.getFullYear(), 0, 1);
-    const pastDaysOfYear = (date.getTime() - firstDayOfYear.getTime()) / 86400000;
-    return Math.ceil((pastDaysOfYear + firstDayOfYear.getDay() + 1) / 7);
-}
+async function showAllSchedules(msg: Message) {
+    const schedules = await Schedule.find({ isOpen: true });
+    if (!schedules.length) {
+        await msg.react('❌');
+        return await msg.reply('Não há nenhuma escala aberta.');
+    }
 
-function getWeekAndYear() {
-    const now = new Date();
-    const week = getWeek(now);
-    const year = now.getFullYear();
-    return [week, year];
+    const schedulesIds = schedules.map((item) => item.id);
+
+    await msg.reply(`Escalas abertas: ${schedulesIds}`);
+    return await msg.react('👍');
 }

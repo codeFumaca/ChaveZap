@@ -1,16 +1,16 @@
 import mongoose from "mongoose";
 
 const taskSchema = new mongoose.Schema({
-    nome: String,
-    resp: String,
-    numero: String
+    nome: { type: String },
+    resp: { type: String },
+    numero: { type: String }
 });
 
 const scheduleSchema = new mongoose.Schema({
-    week: Number,
-    year: Number,
+    id: { type: String, required: true },
+    isOpen: { type: Boolean, required: true, default: true },
     tasks: [taskSchema],
-    registered: [String]
+    registered: { type: [String], required: true }
 });
 
 const Schedule = mongoose.model('Schedule', scheduleSchema);

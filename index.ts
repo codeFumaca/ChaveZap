@@ -30,14 +30,16 @@ client.on('message_create', async (msg: Message) => {
 });
 
 client.on('message_revoke_everyone', async (after: Message, before: Message) => {
-    if (before) await deleteLogMessage(after,before, client);
+    if (before) await deleteLogMessage(after, before, client);
 });
 
 try {
     (async () => {
-        await connectar();
+        await connectar().then(() => {
+            client.initialize();
+        });
     })();
-    client.initialize();
+
 } catch (error) {
     console.log(error);
 }
