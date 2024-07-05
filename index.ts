@@ -4,7 +4,6 @@ import commandHandler from './src/handlers/commandHandler.js';
 import { Client, Message } from 'whatsapp-web.js';
 
 import whatsappWeb from "whatsapp-web.js";
-import { connectar } from './src/database/db.ts';
 import { deleteLogMessage } from './src/handlers/log.ts';
 const LocalAuth = whatsappWeb.LocalAuth;
 
@@ -34,12 +33,7 @@ client.on('message_revoke_everyone', async (after: Message, before: Message) => 
 });
 
 try {
-    (async () => {
-        await connectar().then(() => {
-            client.initialize();
-        });
-    })();
-
+    client.initialize();
 } catch (error) {
     console.log(error);
 }
