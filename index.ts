@@ -25,11 +25,20 @@ client.on('ready', () => {
 });
 
 client.on('message_create', async (msg: Message) => {
-    commandHandler(msg, client);
+    try {
+        await commandHandler(msg, client);
+    } catch (error) {
+        if (error instanceof Error) console.log(error.message);
+    }
+
 });
 
 client.on('message_revoke_everyone', async (after: Message, before: Message) => {
-    if (before) await deleteLogMessage(after, before, client);
+    try {
+        if (before) await deleteLogMessage(after, before, client);
+    } catch (error) {
+        if (error instanceof Error) console.log(error.message);
+    }
 });
 
 try {
