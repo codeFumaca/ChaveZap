@@ -1,7 +1,7 @@
 import { Client, Message } from "whatsapp-web.js";
 import { RecievedMessage } from "../@types/RecievedMessages.ts";
 
-export default function withLogging(commandFunc: (msg: Message, client: Client) => Promise<void>) {
+export default async function withLogging(commandFunc: (msg: Message, client: Client) => Promise<void>) {
     return async function (msg: Message, client: Client) {
         const groupId = process.env.LOGCHANNEL_ID;
 
@@ -14,22 +14,20 @@ export default function withLogging(commandFunc: (msg: Message, client: Client) 
 
         await groupChat?.sendMessage(text);
 
-        return commandFunc(msg, client);
+        return await commandFunc(msg, client);
     }
 }
 
-export function logError(error: Error, client: Client) {
+export async function logError(error: Error, client: Client) {
     const groupId = process.env.LOGCHANNEL_ID;
 
     if (!groupId) return;
 
-    const groupChat = client.getChatById(groupId);
+    const groupChat = await client.getChatById(groupId);
 
     let text = `❌ *Erro!*\n${error.message}`;
 
-    groupChat.then((chat) => {
-        chat.sendMessage(text);
-    });
+    await groupChat.sendMessage(text);
 }
 
 export async function deleteLogMessage(msgAnterior: Message, msg: Message, client: Client) {
@@ -46,6 +44,6 @@ export async function deleteLogMessage(msgAnterior: Message, msg: Message, clien
 
         await groupChat.sendMessage(text);
     } catch (error) {
-        if (error instanceof Error) logError(error, client);
+        if (error instanceof Error) await logError(error, client);
     }
 }

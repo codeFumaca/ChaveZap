@@ -40,16 +40,16 @@ export default async function commandHandler(message: Message, client: Client) {
 
         if (commands[command]) {
 
-            const commandWithLogging = withLogging(commands[command]);
+            const commandWithLogging = await withLogging(commands[command]);
             await commandWithLogging(message, client);
 
         } else {
-            message.react('❓');
-            message.reply(`Comando desconhecido: ${command}`);
+            await message.react('❓');
+            await message.reply(`Comando desconhecido: ${command}`);
         }
     } catch (error) {
-        if (error instanceof Error) logError(error, client);
-        message.react('❌');
-        message.reply('Algo deu errado, tente novamente.');
+        if (error instanceof Error) await logError(error, client);
+        await message.react('❌');
+        await message.reply('Algo deu errado, tente novamente.');
     }
 };

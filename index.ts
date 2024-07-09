@@ -26,7 +26,7 @@ client.on('ready', () => {
 });
 
 client.on('message_create', async (msg: Message) => {
-    commandHandler(msg, client);
+    await commandHandler(msg, client);
 });
 
 client.on('message_revoke_everyone', async (after: Message, before: Message) => {
