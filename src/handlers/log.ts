@@ -18,18 +18,16 @@ export default function withLogging(commandFunc: (msg: Message, client: Client) 
     }
 }
 
-export function logError(error: Error, client: Client) {
+export async function logError(error: Error, client: Client) {
     const groupId = process.env.LOGCHANNEL_ID;
 
     if (!groupId) return;
 
-    const groupChat = client.getChatById(groupId);
+    const groupChat = await client.getChatById(groupId);
 
     let text = `❌ *Erro!*\n${error.message}`;
 
-    groupChat.then((chat) => {
-        chat.sendMessage(text);
-    });
+    await groupChat.sendMessage(text);
 }
 
 export async function deleteLogMessage(msgAnterior: Message, msg: Message, client: Client) {

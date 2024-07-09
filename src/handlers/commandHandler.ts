@@ -40,7 +40,7 @@ export default async function commandHandler(message: Message, client: Client) {
             message.reply(`Comando desconhecido: ${command}`);
         }
     } catch (error) {
-        if (error instanceof Error) logError(error, client);
+        if (error instanceof Error) await logError(error, client);
         message.react('❌');
         message.reply('Algo deu errado, tente novamente.');
     }
