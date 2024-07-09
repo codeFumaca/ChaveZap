@@ -8,8 +8,6 @@ export default async function versiculoCommand(msg: Message) {
     try {
         const option = msg.body.split(' ');
 
-        await msg.react('🕣');
-
         if (!option[1]) return paz(msg)
 
         switch (option[1]) {
@@ -23,11 +21,9 @@ export default async function versiculoCommand(msg: Message) {
                 versiculo(msg, '_hoje')
                 break;
             default:
-                await msg.react('❌');
                 return await msg.reply(`Nenhuma opção encontrada.\nEscolha uma opção: <anteontem | ontem | hoje>\nExemplo: _${prefix}versiculo hoje_`);
         }
     } catch (error) {
-        await msg.react('❌');
         return msg.reply('Algo deu errado, tente novamente.');
     }
 }
@@ -35,8 +31,6 @@ export default async function versiculoCommand(msg: Message) {
 async function versiculo(msg: Message, option: '_anteontem' | '_ontem' | '_hoje') {
     try {
         const versiculo = await getResults(option);
-
-        await msg.react('👍');
         await msg.reply(versiculo);
 
     } catch (error) {

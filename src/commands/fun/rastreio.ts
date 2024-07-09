@@ -20,15 +20,12 @@ export default async function rastreioCommand(msg: Message) {
         \nÚltima atualização: ${info.eventos[0].data}\nHorário: ${info.eventos[0].hora} (GMT -3)\nStatus: *${info.eventos[0].status}*\nLocal: ${info.eventos[0].local}\nFornecedor da API: https://linketrack.com/`;
         
         await msg.reply(text);
-        await msg.react('👍');
 
     } catch (error: any) {
         if (error instanceof AxiosError) {
-            await msg.react('❌');
             return msg.reply('Muitas requisições, tente novamente mais tarde.');
         }
         if (error instanceof MissingParameterError || error instanceof UnsupportedTrackingCodeError) {
-            await msg.react('❌');
             return msg.reply(error.message);
         }
     }
