@@ -1,7 +1,7 @@
 import { Client, Message } from "whatsapp-web.js";
 import { RecievedMessage } from "../@types/RecievedMessages.ts";
 
-export default function withLogging(commandFunc: (msg: Message, client: Client) => Promise<void>) {
+export default async function withLogging(commandFunc: (msg: Message, client: Client) => Promise<void>) {
     return async function (msg: Message, client: Client) {
         const groupId = process.env.LOGCHANNEL_ID;
 
@@ -14,7 +14,7 @@ export default function withLogging(commandFunc: (msg: Message, client: Client) 
 
         await groupChat?.sendMessage(text);
 
-        return commandFunc(msg, client);
+        return await commandFunc(msg, client);
     }
 }
 
