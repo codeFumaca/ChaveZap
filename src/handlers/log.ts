@@ -44,6 +44,6 @@ export async function deleteLogMessage(msgAnterior: Message, msg: Message, clien
 
         await groupChat.sendMessage(text);
     } catch (error) {
-        if (error instanceof Error) logError(error, client);
+        if (error instanceof Error) console.log(error);
     }
 }
