@@ -25,7 +25,7 @@ export async function logError(error: Error, client: Client) {
 
     const groupChat = await client.getChatById(groupId);
 
-    let text = `❌ *Erro!*\n${error.message}`;
+    let text = `❌ *Erro!*\n${error}`;
 
     await groupChat.sendMessage(text);
 }
