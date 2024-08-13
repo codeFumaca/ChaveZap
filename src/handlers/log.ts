@@ -40,7 +40,9 @@ export async function deleteLogMessage(msgAnterior: Message, msg: Message, clien
 
         const lastMessage = msgAnterior as unknown as RecievedMessage;
 
-        if (!msg.body) msg.body = 'Mensagem sem conteúdo'; 
+        if (!lastMessage._data.notifyName) lastMessage._data.notifyName = "Remetente não informado";
+        if (!msg.body) msg.body = 'Mensagem sem conteúdo';
+
         const text = `❌ *Mensagem apagada!*\nRemetente: ${lastMessage._data.notifyName}\nConteúdo: ${msg.body}`;
 
         await groupChat.sendMessage(text);
