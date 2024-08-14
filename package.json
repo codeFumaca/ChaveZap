@@ -5,9 +5,10 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "start": "tsx index.ts",
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "tsup index.ts && tsup src/"
+    "check": "tsc --noEmit && echo ✔ Ok",
+    "start": "node --env-file .env ./dist/index.cjs",
+    "dev": "tsx --env-file .env ./src/index.ts",
+    "build": "tsup src/"
   },
   "author": "",
   "license": "ISC",
@@ -23,6 +24,7 @@
   "devDependencies": {
     "@types/qrcode-terminal": "^0.12.2",
     "tsup": "^8.0.2",
+    "tsx": "4.8.0",
     "typescript": "^5.4.5"
   }
 }

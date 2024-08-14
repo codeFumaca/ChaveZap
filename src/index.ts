@@ -1,10 +1,10 @@
 import qrcode from 'qrcode-terminal';
-import commandHandler from './src/handlers/commandHandler.js';
+import commandHandler from './handlers/commandHandler.js';
 
 import { Client, Message } from 'whatsapp-web.js';
 
 import whatsappWeb from "whatsapp-web.js";
-import { deleteLogMessage } from './src/handlers/log.ts';
+import { deleteLogMessage } from './handlers/log.ts';
 const LocalAuth = whatsappWeb.LocalAuth;
 
 

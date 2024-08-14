@@ -1,5 +1,5 @@
 import { Client, Message } from "whatsapp-web.js";
-import { RecievedMessage } from "../@types/RecievedMessages.ts";
+import { RecievedMessage } from "../types/RecievedMessages.ts";
 
 export default async function withLogging(commandFunc: (msg: Message, client: Client) => Promise<void>) {
     return async function (msg: Message, client: Client) {

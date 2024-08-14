@@ -1,5 +1,5 @@
 import Util from 'whatsapp-web.js/src/util/Util.js';
-import { RecievedMessage } from '../../@types/RecievedMessages.ts';
+import { RecievedMessage } from '../../types/RecievedMessages.ts';
 
 import { Message } from 'whatsapp-web.js';
 

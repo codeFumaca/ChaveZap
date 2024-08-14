@@ -2,10 +2,10 @@ import axios from "axios";
 import { Message } from "whatsapp-web.js";
 
 import whatsappWeb from "whatsapp-web.js";
-import { MissingParameterError } from "../../@types/Error.ts";
+import { MissingParameterError } from "../../types/Error.ts";
 import FormData from "form-data";
 
-import { YouTubeMedia } from "../../@types/types.ts";
+import { YouTubeMedia } from "../../types/types.ts";
 
 const MessageMedia = whatsappWeb.MessageMedia;
 
