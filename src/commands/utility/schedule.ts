@@ -1,8 +1,8 @@
 import { Client, Message } from "whatsapp-web.js";
 import Schedule from "../../models/schedule.model.ts";
-import { RecievedMessage } from "../../@types/RecievedMessages.ts";
-import { role, schedule } from "../../@types/types.ts";
-import { InsufficientPermissionError, MissingParameterError } from "../../@types/Error.ts";
+import { RecievedMessage } from "../../types/RecievedMessages.ts";
+import { role, schedule } from "../../types/types.ts";
+import { InsufficientPermissionError, MissingParameterError } from "../../types/Error.ts";
 
 const COMMANDS: any = {
     'criar': createSchedule, // Criar uma nova escala
