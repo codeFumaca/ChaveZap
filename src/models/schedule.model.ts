@@ -10,7 +10,9 @@ const scheduleSchema = new mongoose.Schema({
     id: { type: String, required: true },
     isOpen: { type: Boolean, required: true, default: true },
     tasks: [taskSchema],
-    registered: { type: [String], required: true }
+    registered: { type: [String], required: true },
+    date: { type: String },
+    name: { type: String },
 });
 
 const Schedule = mongoose.model('Schedule', scheduleSchema);

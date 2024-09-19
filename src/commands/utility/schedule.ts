@@ -12,6 +12,8 @@ const COMMANDS: any = {
     'deletar': deleteSchedule, // Deletar uma escala
     'cadastrar': setTasksInSchedule, // Cadastrar funções na escala
     'estado': modifyStateSchedule, // 
+    'data': setScheduleDate,
+    'nome': setScheduleName,
 
 };
 
@@ -28,7 +30,7 @@ export default async function scheduleCommand(msg: Message, client: Client) {
             await command(msg, client);
         } else {
             await msg.react('❓');
-            return await msg.reply('Nenhuma opção encontrada.\nEscolha uma opção: <criar | cadastrar | listar | registrar | desregistrar | estado | deletar>')
+            return await msg.reply('Nenhuma opção encontrada.\nEscolha uma opção: <criar | cadastrar | data | nome | listar | registrar | desregistrar | estado | deletar>')
         }
     } catch (error) {
         if (error instanceof Error) handleError(error, msg);
@@ -118,7 +120,7 @@ async function showSchedule(msg: Message) {
     if (!existingSchedule) return await msg.reply(`Não há nenhuma escala aberta com este id.\nUse _${prefix}escala criar_ para criar uma nova escala.`);
 
     const schedule: role[] = existingSchedule.tasks as unknown as role[];
-    let message = `*📃 Escala* _${id}_\n`;
+    let message = `*📃 Escala* _${id}_ - ${existingSchedule.date || ''} \n ${existingSchedule.name || '' } \n`;
 
     if (existingSchedule.tasks.length === 0) message += '\nNenhuma função cadastrada.';
 
@@ -267,6 +269,42 @@ async function modifyStateSchedule(msg: Message) {
     }
 
     await existingSchedule.save();
+
+    return await msg.react('👍');
+}
+
+async function setScheduleDate(msg: Message) {
+    const secret = process.env.SCHEDULE_SECRET;
+
+    msg.body = msg.body.replace('escala data', '');
+    const id = msg.body.split(' ')[1];
+    msg.body = msg.body.replace(id, '');
+    const secretMSG = msg.body.split(' ')[2];
+    msg.body = msg.body.replace(secretMSG, '')
+    const date = msg.body.split(' ')[3];
+
+    if (!date || !secretMSG || !secret) throw new MissingParameterError();
+    if (secretMSG != secret) throw new InsufficientPermissionError();
+
+    await Schedule.updateOne({ id, isOpen: true }, { date }).then(async () => await msg.reply('Data da escala atualizada com sucesso.'));
+
+    return await msg.react('👍');
+}
+
+async function setScheduleName(msg: Message) {
+    const secret = process.env.SCHEDULE_SECRET;
+
+    msg.body = msg.body.replace('escala nome', '');
+    const id = msg.body.split(' ')[1];
+    msg.body = msg.body.replace(id, '');
+    const secretMSG = msg.body.split(' ')[2];
+    msg.body = msg.body.replace(secretMSG, '')
+    const name = msg.body;
+
+    if (!name || !secretMSG || !secret) throw new MissingParameterError();
+    if (secretMSG != secret) throw new InsufficientPermissionError();
+
+    await Schedule.updateOne({ id, isOpen: true }, { name }).then(async () => await msg.reply('Nome da escala atualizada com sucesso.'));
 
     return await msg.react('👍');
 }
