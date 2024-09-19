@@ -147,7 +147,7 @@ async function registerInSchedule(msg: Message) {
 
     if (msg.author) respNumber = msg.author.replace('@c.us', '');
 
-    const task = msg.body;
+    const task = msg.body.toLowerCase();
     const existingSchedule: schedule | null = await Schedule.findOne({ id });
 
     // Validações
