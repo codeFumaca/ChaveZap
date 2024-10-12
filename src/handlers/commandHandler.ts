@@ -7,7 +7,7 @@ import mediaCommand from '../commands/fun/media.ts';
 import gptCommand from '../commands/fun/gptChat.ts';
 import versiculoCommand from '../commands/fun/versiculo.ts';
 import log, { logError } from './log.ts';
-import { everyoneCommand, playCommand, aramCommand } from '../commands/fun/mentions.ts';
+import { mentionCommand } from '../commands/fun/mentions.ts';
 import { Client, Message } from 'whatsapp-web.js';
 import withLogging from './log.ts';
 import scheduleCommand from '../commands/utility/schedule.ts';
@@ -19,11 +19,11 @@ const commands: any = {
     'i': imageCommand,
     'ping': pingCommand,
     's': stickerCommand,
-    'aram': aramCommand,
-    'play': playCommand,
+    'aram': mentionCommand,
+    'play': mentionCommand,
     'bicho': bichoCommand,
     'paz': versiculoCommand,
-    'everyone': everyoneCommand,
+    'everyone': mentionCommand,
     'rastreio': rastreioCommand,
     'media': mediaCommand,
     'versiculo': versiculoCommand,

@@ -39,6 +39,15 @@ export async function deleteLogMessage(msgAnterior: Message, msg: Message, clien
         const groupChat = await client.getChatById(groupId);
 
         const lastMessage = msgAnterior as unknown as RecievedMessage;
+        if (msgAnterior.hasMedia) {
+            const cont1 = await msgAnterior.downloadMedia();
+            return await groupChat.sendMessage(cont1, { caption: `❌ *Mensagem apagada!*\nRemetente: ${lastMessage._data.notifyName}\nConteúdo: ${msg.body}` });
+        }
+
+        if (msg.hasMedia) {
+            const cont2 = await msg.downloadMedia();
+            return await groupChat.sendMessage(cont2, { caption: `❌ *Mensagem apagada!*\nRemetente: ${lastMessage._data.notifyName}\nConteúdo: ${msg.body}` });
+        }
 
         const text = `❌ *Mensagem apagada!*\nRemetente: ${lastMessage._data.notifyName}\nConteúdo: ${msg.body}`;
 
