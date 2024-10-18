@@ -6,8 +6,8 @@
   "type": "module",
   "scripts": {
     "check": "tsc --noEmit && echo ✔ Ok",
-    "start": "node --env-file .env ./dist/index.cjs",
-    "dev": "tsx --env-file .env ./src/index.ts",
+    "start": "node --env-file=.env ./dist/index.cjs",
+    "dev": "tsx --env-file=.env ./src/index.ts",
     "build": "tsup src/"
   },
   "author": "",
