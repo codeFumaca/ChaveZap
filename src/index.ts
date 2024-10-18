@@ -14,10 +14,6 @@ const client = new Client({
         executablePath: process.env.CHROME_PATH,
         args: ['--no-sandbox', '--disable-setuid-sandbox',],
     },
-    webVersionCache: {
-        type: 'remote',
-        remotePath: 'https://raw.githubusercontent.com/wppconnect-team/wa-version/refs/heads/main/html/2.3000.1015322559-alpha.html',
-    },
 });
 
 client.on('qr', qr => {
