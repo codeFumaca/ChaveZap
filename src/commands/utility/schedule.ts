@@ -4,7 +4,7 @@ import { RecievedMessage } from "../../types/RecievedMessages.ts";
 import { role, schedule } from "../../types/types.ts";
 import { InsufficientPermissionError, MissingParameterError } from "../../types/Error.ts";
 
-const COMMANDS: any = {
+const COMMANDS: Record<string, Function> = {
     'criar': createSchedule, // Criar uma nova escala
     'listar': showSchedule, // Listar funções na escala
     'registrar': registerInSchedule, // Se registrar na escala
@@ -14,7 +14,6 @@ const COMMANDS: any = {
     'estado': modifyStateSchedule, // 
     'data': setScheduleDate,
     'nome': setScheduleName,
-
 };
 
 const prefix = process.env.PREFIX;
@@ -240,9 +239,9 @@ async function showAllSchedules(msg: Message) {
         return await msg.reply('Não há nenhuma escala aberta.');
     }
 
-    const schedulesIds = schedules.map((item) => item.id);
+    const formatedMensage = schedules.map((item) => `- *${item.id}* : ${item.name?.trim() || ''} - ${item.date || ''}`).join('\n');
 
-    await msg.reply(`Escalas abertas: ${schedulesIds}`);
+    await msg.reply(`📌 _ESCALAS ABERTAS_ \n\n${formatedMensage}`);
     return await msg.react('👍');
 }
 
