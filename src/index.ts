@@ -4,7 +4,7 @@ import commandHandler from './handlers/commandHandler.js';
 import { Client, Message } from 'whatsapp-web.js';
 
 import whatsappWeb from "whatsapp-web.js";
-import { connectar } from './database/db.ts';
+import { connectar } from './database/index.ts';
 import { deleteLogMessage } from './handlers/log.ts';
 const LocalAuth = whatsappWeb.LocalAuth;
 

@@ -1,4 +1,5 @@
-import mongoose from "mongoose";
+import mongoose, { InferSchemaType, model } from "mongoose";
+import { scheduleSchema } from "./schemas/schedule.ts";
 
 export const connectar = async () => {
     console.log("Conectando ao MongoDB...");
@@ -16,3 +17,9 @@ export const connectar = async () => {
         throw err;
     }
 }
+
+export const db = {
+    schedules: model("schedule", scheduleSchema, "schedules"),
+}
+
+export type scheduleSchema = InferSchemaType<typeof scheduleSchema>;
