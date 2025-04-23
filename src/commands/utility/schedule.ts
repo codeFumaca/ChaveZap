@@ -53,20 +53,24 @@ export default async function scheduleCommand(msg: Message, client: Client) {
 }
 
 async function createSchedule(msg: Message) {
-    const id = msg.body.replace('escala criar ', '');
+    const [prefixo, funcao, id,] = msg.body.split(' ');
 
-    if (!id || !(id.length > 0)) throw new MissingParameterError();
+    try {
+        if (!id || !(id.length > 0)) throw new Error('Você precisa informar um id para a escala.');
 
-    const existingSchedule = await Schedule.findOne({ id });
-    if (existingSchedule) return await msg.reply(`Já existe uma escala com este identificador.\nUse _${prefix}escala listar ${id}_ para visualizar.`);
+        const existingSchedule = await Schedule.findOne({ id });
+        if (existingSchedule) return await msg.reply(`Já existe uma escala com este identificador.\nUse _${prefix}escala listar ${id}_ para visualizar.`);
 
-    const tasks: role[] = [];
+        const tasks: role[] = [];
 
-    const schedule = new Schedule({ id, tasks, registered: [] });
+        const schedule = new Schedule({ id, tasks, registered: [] });
 
-    schedule.save();
+        schedule.save();
 
-    return await msg.react('✅');
+        return await msg.react('✅');
+    } catch (error) {
+        throw error;
+    }
 
 }
 
