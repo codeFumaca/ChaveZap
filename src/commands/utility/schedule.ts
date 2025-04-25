@@ -30,7 +30,7 @@ const emojiTexts: any = {
     'videomaker': '🎥 videomaker',
     'avisos': '📢 avisos',
     'entrevista': '🎤 entrevista',
-    'ptz': : '📹 ptz',
+    'ptz': '📹 ptz',
 };
 
 const prefix = process.env.PREFIX;
