@@ -24,12 +24,13 @@ const emojiTexts: any = {
     'live': '💻 live',
     'som': '🔊 som',
     'corte': '✂️ corte',
-    'cameraman': '📹 cameraman',
+    'cameraman': '🎬 cameraman',
     'fotos': '📸 fotos',
     'storymaker': '📱 storymaker',
     'videomaker': '🎥 videomaker',
     'avisos': '📢 avisos',
     'entrevista': '🎤 entrevista',
+    'ptz': : '📹 ptz',
 };
 
 const prefix = process.env.PREFIX;
