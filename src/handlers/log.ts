@@ -50,3 +50,21 @@ export async function deleteLogMessage(msgAnterior: Message, msg: Message, clien
         if (error instanceof Error) console.log(error);
     }
 }
+
+export async function editedLogMessage(msgAnterior: string, msgNova: string, message: Message, client: Client) {
+    try {
+        const groupId = process.env.LOGCHANNEL_ID;
+
+        if (!groupId) return;
+
+        const groupChat = await client.getChatById(groupId);
+
+        const messageoptions = message as unknown as RecievedMessage;
+
+        const text = `✏️ *Mensagem editada!*\nConteúdo anterior: ${msgAnterior}\nConteúdo novo: ${msgNova}, \nRemetente: ${messageoptions._data.notifyName}`;
+
+        await groupChat.sendMessage(text);
+    } catch (error) {
+        if (error instanceof Error) await logError(error, client);
+    }
+}

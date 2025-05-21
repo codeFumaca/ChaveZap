@@ -4,7 +4,7 @@ import commandHandler from './handlers/commandHandler.js';
 import { Client, Message } from 'whatsapp-web.js';
 
 import whatsappWeb from "whatsapp-web.js";
-import { deleteLogMessage } from './handlers/log.ts';
+import { deleteLogMessage, editedLogMessage } from './handlers/log.ts';
 const LocalAuth = whatsappWeb.LocalAuth;
 
 
@@ -22,6 +22,10 @@ client.on('qr', qr => {
 
 client.on('ready', () => {
     console.log('Client is ready!');
+});
+
+client.on('message_edit', async (message: Message, newBody: string, prevBody: string) => {
+    await editedLogMessage(prevBody, newBody, message, client);
 });
 
 client.on('message_create', async (msg: Message) => {
