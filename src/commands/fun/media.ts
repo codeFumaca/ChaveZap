@@ -3,9 +3,6 @@ import { Message } from "whatsapp-web.js";
 
 import whatsappWeb from "whatsapp-web.js";
 import { MissingParameterError } from "../../types/Error.ts";
-import FormData from "form-data";
-
-import { YouTubeMedia } from "../../types/types.ts";
 
 const MessageMedia = whatsappWeb.MessageMedia;
 
@@ -32,7 +29,7 @@ async function mediaDownloader(msg: Message, url: string) {
 
         const linkDownload = await getResults(url);
 
-        const media = await MessageMedia.fromUrl(linkDownload, { unsafeMime: true });
+        const media = await MessageMedia.fromUrl(linkDownload?.urlDownload, { unsafeMime: true });
 
         return media;
 
@@ -43,32 +40,31 @@ async function mediaDownloader(msg: Message, url: string) {
 }
 
 async function getResults(linkPost: string) {
-    const data = new FormData();
-    data.append('url', `${linkPost}`);
-
     const options = {
         method: 'POST',
-        url: 'https://all-media-downloader.p.rapidapi.com/download',
+        url: 'https://instagram120.p.rapidapi.com/api/instagram/links',
         headers: {
             'x-rapidapi-key': process.env.RAPIDAPI_KEY,
-            'x-rapidapi-host': 'all-media-downloader.p.rapidapi.com',
-            ...data.getHeaders(),
+            'x-rapidapi-host': 'instagram120.p.rapidapi.com',
+            'Content-Type': 'application/json',
         },
-        data: data
+        data: {
+            url: linkPost
+        }
     };
 
     try {
         const response = await axios.request(options);
-        if (response.data.audio) return extractMediaInfo(response.data);
-        return response.data;
+        const result = response.data[0];
+        const url = result.urls[0].url;
+
+        return {
+            urlDownload: url,
+            comments: result.meta.commentCount,
+            likes: result.meta.likeCount,
+            author: result.meta.username,
+        }
     } catch (error) {
         console.error(error);
     }
-}
-
-function extractMediaInfo(media: YouTubeMedia) {
-    const video360pUrl = media["360p"].url;
-    const audioUrl = media.audio.url;
-
-    return video360pUrl;
 }
